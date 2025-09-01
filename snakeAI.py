@@ -19,6 +19,9 @@ class SnakeGame:
         self.width = width
         self.height = height
 
+        self.frame_interations = 0
+        self.direction = Direction.RIGHT  # Inicializa direção
+
         # Inicia posicao da cabeca da cobra no meio da tela 
         self.head = Point(self.width/2, self.height/2)
 
@@ -40,6 +43,24 @@ class SnakeGame:
         # se a maca for colocada dentro da cobra -> chama a funcao e reposiciona a maca
         if self.food in self.snake:
             self._place_food()
+
+    def is_reward(self):
+        if self.head.x == self.food.x and self.head.y == self.food.y:
+            return True
+        else:
+            return False
+    
+    def is_collision(self, pt=None):
+        if pt is None:
+            pt = self.head
+        # Bateu na parede
+        if pt.x > self.width - 20 or pt.x < 0 or pt.y > self.height - 20 or pt.y < 0:
+            return True
+        # Bateu no corpo
+        if pt in self.snake[1:]:
+            return True
+        
+        return False
 
     def _move(self, action):
             # 1. Atualizar a direção com base na ação
@@ -74,18 +95,87 @@ class SnakeGame:
             elif self.direction == Direction.DOWN:
                 y -= 20
 
-            self.head(x, y)
+            self.head = Point(x, y)
 
             # Adiciona a nova posicao da cabeca ao inicio da lista do corpo
             self.snake.insert(0, self.head)
 
             # Verifica se comeu uma maca
-            if self.head.x == self.food.x and self.head.y == self.food.y:
+            if self.is_reward():
                 self.score += 1
                 self._place_food()
             
             else:
-                self.snake.pop
+                self.snake.pop()
 
+    def get_state(self):
+        head = self.snake[0]
 
+        # Pontos de perigo
+        point_l = Point(head.x - 20, head.y)
+        point_r = Point(head.x + 20, head.y)
+        point_u = Point(head.x, head.y - 20)
+        point_d = Point(head.x, head.y + 20)
         
+        # Direção atual
+        dir_l = self.direction == Direction.LEFT
+        dir_r = self.direction == Direction.RIGHT
+        dir_u = self.direction == Direction.UP
+        dir_d = self.direction == Direction.DOWN
+
+        state = [
+            # Perigo reto
+            (dir_r and self.is_collision(point_r)) or 
+            (dir_l and self.is_collision(point_l)) or 
+            (dir_u and self.is_collision(point_u)) or 
+            (dir_d and self.is_collision(point_d)),
+
+            # Perigo na direita
+            (dir_u and self.is_collision(point_r)) or 
+            (dir_d and self.is_collision(point_l)) or 
+            (dir_l and self.is_collision(point_u)) or 
+            (dir_r and self.is_collision(point_d)),
+
+            # Perigo na esquerda
+            (dir_d and self.is_collision(point_r)) or 
+            (dir_u and self.is_collision(point_l)) or 
+            (dir_r and self.is_collision(point_u)) or 
+            (dir_l and self.is_collision(point_d)),
+            
+            # Direção de movimento
+            dir_l,
+            dir_r,
+            dir_u,
+            dir_d,
+            
+            # Localização da comida
+            self.food.x < self.head.x,  # comida à esquerda
+            self.food.x > self.head.x,  # comida à direita
+            self.food.y < self.head.y,  # comida acima
+            self.food.y > self.head.y   # comida abaixo
+            ]
+
+        return np.array(state, dtype=int)
+    
+    def play_step(self, action):
+        self.frame_interations += 1
+
+        self._move(action)
+
+        reward = 0
+        game_over = False
+
+        if self.is_collision() == False or self.frame_interations > 100*len(self.snake):
+            game_over = True
+            reward = -10
+            return reward, game_over, self.score
+        
+        elif self.is_reward() == True:
+            self.score += 1
+            reward = 10
+            self._place_food
+
+        else:
+            reward = -0.1
+
+        return reward, game_over, self.score
