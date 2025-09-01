@@ -14,7 +14,7 @@ class Point:
         self.x = x
         self.y = y
 
-class SnakeGameAI:
+class SnakeGame:
     def __init__(self, width = 640, height = 480):
         self.width = width
         self.height = height
@@ -31,50 +31,61 @@ class SnakeGameAI:
         self.food = None
         self._place_food()
 
-def _place_food(self):
-    x = random.randint(0, (self.width-20 // 20) * 20)
-    y = random.randint(0, (self.height-20 // 20) * 20)
+    def _place_food(self):
+        x = random.randint(0, (self.width-20 // 20) * 20)
+        y = random.randint(0, (self.height-20 // 20) * 20)
 
-    self.food = Point(x,y)
+        self.food = Point(x,y)
 
-    # se a maca for colocada dentro da cobra -> chama a funcao e reposiciona a maca
-    if self.food in self.snake:
-        _place_food()
+        # se a maca for colocada dentro da cobra -> chama a funcao e reposiciona a maca
+        if self.food in self.snake:
+            self._place_food()
 
-def _move(self, action):
-        # 1. Atualizar a direção com base na ação
-        # [0, 1, 0] -> esquerda
-        # [1, 0, 0] -> em frente
-        # [0, 0, 1] -> direita
+    def _move(self, action):
+            # 1. Atualizar a direção com base na ação
+            # [0, 1, 0] -> esquerda
+            # [1, 0, 0] -> em frente
+            # [0, 0, 1] -> direita
 
-        clockwise_map = (Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP)
-        idx = clockwise_map.index(self.direction)
+            clockwise_map = (Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP)
+            idx = clockwise_map.index(self.direction)
 
-        if np.array_equal(action, [1,0,0]):
-            new_direction = clockwise_map[idx]
-        elif np.array_equal(action, [0,1,0]):
-            next_idx = (idx + 1) % 4
-            new_direction = clockwise_map[next_idx]
-        elif np.array_equal(action, [0,0,1]):
-            next_idx = (idx - 1) % 4
-            new_direction = clockwise_map[next_idx]
+            if np.array_equal(action, [1,0,0]):
+                new_direction = clockwise_map[idx]
+            elif np.array_equal(action, [0,1,0]):
+                next_idx = (idx + 1) % 4
+                new_direction = clockwise_map[next_idx]
+            elif np.array_equal(action, [0,0,1]):
+                next_idx = (idx - 1) % 4
+                new_direction = clockwise_map[next_idx]
 
-        self.direction = new_direction
+            self.direction = new_direction
 
 
-        x = self.head.x
-        y = self.head.y
+            x = self.head.x
+            y = self.head.y
 
-        if self.direction == Direction.RIGHT:
-            x += 20
-        elif self.direction == Direction.LEFT:
-            x -= 20
-        elif self.direction == Direction.UP:
-            y += 20
-        elif self.direction == Direction.DOWN:
-            y -= 20
+            if self.direction == Direction.RIGHT:
+                x += 20
+            elif self.direction == Direction.LEFT:
+                x -= 20
+            elif self.direction == Direction.UP:
+                y += 20
+            elif self.direction == Direction.DOWN:
+                y -= 20
 
-        self.head(x, y)
+            self.head(x, y)
 
-        
+            # Adiciona a nova posicao da cabeca ao inicio da lista do corpo
+            self.snake.insert(0, self.head)
+
+            # Verifica se comeu uma maca
+            if self.head.x == self.food.x and self.head.y == self.food.y:
+                self.score += 1
+                self._place_food()
+            
+            else:
+                self.snake.pop
+
+
         
