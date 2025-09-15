@@ -102,6 +102,20 @@ Onde:
 Game  150 | Score:  3 | Record:  8 | Mean: 2.1 | Epsilon: 0.020 | Q-States: 245
 ```
 
+## 🖼️ Exemplos de Resultados
+
+### GIF da IA jogando após 1000 episódios
+
+<p align="center">
+    <img src="assets/snake.gif" alt="Snake jogando após 1000 episódios" width="400"/>
+</p>
+
+### Gráfico de performance do algoritmo após 1000 episódios
+
+<p align="center">
+    <img src="assets/snake_train_stats.png" alt="Gráfico de performance do algoritmo" width="500"/>
+</p>
+
 ## ⚙️ Configurações
 
 ### Modificar Frequência da Interface
